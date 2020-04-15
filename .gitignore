@@ -1,7 +1,3 @@
-# My virtual env
-python36_django/
-updating/
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
