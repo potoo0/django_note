@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>student list</title>
+</head>
+
+<body>
+    <h3>student list</h3>
+    <h4>点语法：字典、属性与方法、索引</h4>
+
+    索引、字典：{{ studentsDic.0.s_name }}: {{ studentsDic.0.s_age }} <br>
+    属性：{{ student.s_name }} 方法：{{ student.get_info }} <br>
+
+    <h4>标签</h4>
+
+    使用 for 语句将列表展示为无序列表，并偶数行为橙色，且第五行为红色:
+    <ul>
+        {% for student in studentsDic %}
+            {% if forloop.counter == 5 %}
+                <li style='color: red'>{{ student.s_name }}: {{ student.s_age }}</li>
+            {% elif forloop.counter|divisibleby:2 %}
+                <li style='color: orange'>{{ student.s_name }}: {{ student.s_age }}</li>
+            {% else %}
+                <li>{{ student.s_name }}: {{ student.s_age }}</li>
+            {% endif %}
+
+            {% comment %} {% ifequal forloop.counter 5 %}
+                循环次数为 5
+            {% endifequal %} {% endcomment %}
+        {% endfor %}
+    </ul>
+
+    <h4>过滤器</h4>
+    - `add:arg`: 当左右两边均是字符串时做字符串拼接，当左边是数值时做四则的加法(负数实现减法)，
+    如: 字符串拼接`{{ studentsDic.0.s_name|add:'66' }}`, 加法`{{ studentsDic.0.s_age|add:66 }}`;<br>
+    - `upper/lower`: 字符串转大小写，如: `{{ studentsDic.0.s_name|upper }}`;<br>
+    - `default:arg`: 如果变量会被 if 判断为 False，则就会使用提供的变量，如: `{{ ''|default:'aaa'}}`;<br>
+    - `join:arg`: 将列表、字符串等等按照特定字符连接起来，如: `{{ studentsDic.0.s_name|join:'-' }}`;<br>
+    - 'date:arg': 将 Python datetime 中的实例转化成特定格式的字符串，如: `{{ now_datetime|date:'Y-M-D' }}`;<br>
+    - `slice:arg`: 类似 Python 的切片，如: `{{ studentsDic|slice:'2:4' }}`;<br>
+    - 'safe': 如果变量是 html 代码，则将其渲染，需要谨慎使用，要确保变量内容安全，如: `{{ code|safe }}`
+
+
+与 `safe` 相同用途的还有标签 `autoescape`，如:
+
+{% autoescape off %}
+    {{ code }}
+{% endautoescape %}
+
+
+</body>
+
+</html>

@@ -1,0 +1,24 @@
+{% extends "templateInheritance/app_TempBase.html" %}
+
+{% load static %}
+
+{% block ext_css %}
+    <link rel='stylesheet' href='{% static "css/app_TempChild.css" %}'>
+{% endblock %}
+
+{% block header %}
+    {{ block.super }} {# 保留原内容 #}
+    <h4>Child Header</h4>
+{% endblock header %}
+
+{% block footer %}
+    {% include 'templateInheritance/app_TempFooter.html'%}
+{% endblock footer %}
+
+
+未在 block 中，不加载不渲染。
+
+{% block notexist %}
+    未在父 block 中，不加载不渲染。
+{% endblock %}
+
