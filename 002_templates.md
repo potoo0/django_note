@@ -248,20 +248,25 @@ class Student(models.Model):
 <h4>include Footer</h4>
 ```
 
-## 4. 模板静态文件
+## 4. 静态文件
 
 静态文件引入方式：
 
 1. 在项目根目录下新建 *static* 文件夹，并在此文件夹下新建 js、css 的目录;
+
 2. 在`setting` 中添加静态文件路径:
 
     ```python
+    STATIC_URL = '/static/'  # static 文件的 url
+
     STATICFILES_DIRS = [
         os.path.join(BASE_DIR, 'static'),
     ]
     ```
 
-3. 模板中通过标签来加载和使用（仅限调试模式，否则需要单独处理，未学到后再补充）:
+3. 静态文件可以直接访问，如 `localhost:8000/static/html/static_html.html`。
+
+4. 模板中通过标签来加载，无须写 URL（仅限调试模式，否则需要单独处理，未学到后再补充）:
 
     ```jinja2
     {% load static %}

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>app login</title>
+</head>
+<body>
+    <form action="{% url 'app_session:login' %}" method="post">
+        <span>用户名:</span><input type="text" placeholder="请输入账户名" name="username">
+        <br>
+        <button>登陆</button>
+    </form>
+</body>
+</html>

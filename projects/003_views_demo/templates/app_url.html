@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>app_index</title>
+</head>
+
+<body>
+    <h4>app index</h4>
+
+    模板中使用 url 'namespace:name' [arg1 arg2...] 反向解析：
+    <a href="{% url 'app_url:index' %}">APP index</a><br>
+
+    反向解析带url位置参数，参数为 555 444：
+    <a href="{% url 'app_url:geturlargs_p' 555 444 %}">geturlargs_position</a><br>
+
+    反向解析带url关键字参数，参数为 arg1=111, arg2=222：
+    <a href="{% url 'app_url:geturlargs_k' arg1=111 arg2=222 %}">geturlargs_key</a><br>
+
+</body>
+
+</html>

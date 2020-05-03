@@ -1,0 +1,13 @@
+{
+    "python.pythonPath": "E:\\django_note\\python36_django\\Scripts\\python.exe",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Path": "D:\\Anaconda3\\Scripts\\flake8.exe",
+    // "python.linting.flake8Args": [
+    //     // "--load-plugins", "flake8_django",
+    //     "--load-plugins", "flake8-django",
+    // ],
+    // "python.formatting.autopep8Path": "autopep8",
+    "python.formatting.autopep8Path": "D:\\Anaconda3\\Scripts\\autopep8.exe",
+}
