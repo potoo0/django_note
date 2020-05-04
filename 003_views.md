@@ -268,10 +268,58 @@ response.set_cookie(
 # 这段代码设置的 cookie 过期时间是一天后，而不是 60 秒后。
 ```
 
+cookie 获取: `request.COOKIES.get('username')`
+
 cookie 默认不支持中文，部分 Web 框架会通过中英文转化实现中文的支持，比如 base64 编码，也可以使用 `json.dumps/loads` 进行相互转化(dumps/loads 可以将中文编码/解码成 Unicode)。
 
 cookie 加密: `response.set_signed_cookie(key, value, salt='', **kwargs)`;
 解密: `request.get_signed_cookie(key, salt='', **kwargs)`。加密解密的 salt 要一致。
+
+>例子，
+>（登陆页面与登陆逻辑未内聚到一个视图函数）:
+>
+>```python
+>def login(request):
+>    return render(request, 'app_cookie_login.html')
+>
+>
+>def do_login(request: HttpRequest):
+>    # 实际上，一般将这部分也写到 login 视图中，通过 request.method 来>区分请求。这样登陆就具有了内聚特点
+>    username = request.POST.get('username')
+>
+>    response = redirect(reverse('app_cookie:logged'))
+>    response.set_cookie(
+>        'username', username,
+>        max_age=20,
+>        # expires=datetime.now() + timedelta(seconds=20),
+>    )
+>    # response.set_signed_cookie(
+>    #     'username', username,
+>    #     salt='salt',
+>    #     # max_age=50,
+>    # )
+>    return response
+>
+>
+>def logged(request: HttpRequest):
+>    try:
+>        username = request.COOKIES.get('username')
+>        # username = request.get_signed_cookie('username', >salt='salt')
+>
+>        if username:
+>            return render(request, 'app_cookie_logged.html',
+>                          context={'username': username})
+>    except Exception:
+>        pass
+>    return redirect(reverse('app_cookie:login'))
+>
+>
+>def logout(request):
+>    response = redirect(reverse('app_cookie:login'))
+>    response.delete_cookie('username')
+>
+>    return response
+>```
 
 ### 3.2 Session
 
@@ -302,6 +350,48 @@ session 常用操作:
 > - 单纯删除 `session[key]`，如 `del request.session['username']`，其会从数据表的 `session_data` 字段中清除原 key-value 的信息，但此条数据仍然在数据库中，且客户端仍然存在 cookie;
 > - 单纯删除 sessionid 的 cookie，如 `resp.delete_cookie('sessionid')` 无法删除服务端的 session，数据表中仍存在那条数据
 
+>例子:
+>
+>```python
+>def login(request: HttpRequest):
+>    if request.method == 'GET':
+>        return render(request, 'app_session_login.html')
+>    elif request.method == 'POST':
+>        username = request.POST.get('username')
+>
+>        request.session['username'] = username
+>        request.session.set_expiry(600)
+>
+>        return redirect(reverse('app_session:logged'))
+>
+>
+>def logged(request: HttpRequest):
+>    username = request.session.get('username')
+>
+>    if username:
+>        return render(request, 'app_session_logged.html',
+>                      context={'username': username})
+>    # except Exception as e:
+>    #     pass
+>    return redirect(reverse('app_session:login'))
+>
+>
+>def logout(request: HttpRequest):
+>    print(request.session.session_key)
+>
+>    response = redirect(reverse('app_session:login'))
+>
+>    # wrong
+>    # response.delete_cookie('sessionid')
+>    # del request.session['username']
+>
+>    # correct
+>    request.session.flush()
+>    # request.session.clear()  # 清除所有???
+>
+>    return response
+>```
+
 ### 3.3 Token
 
 基于 Token 的验证流程:
@@ -315,11 +405,110 @@ session 常用操作:
 
 对于 Token 生成方法，可以使用 `hashlib.new('algorithm', data=b'').hexdigest()` 来生成，其中 data 要求为字节型，可以使用 `str.encode()` 转化为字节型。
 
+>例子:
+>
+>```python
+>def register(request: HttpRequest):
+>    if request.method == 'GET':
+>        return render(request, 'app_token_reg.html')
+>    elif request.method == 'POST':
+>        username = request.POST.get('username')
+>        password = request.POST.get('password')
+>
+>        try:
+>            student = Student()
+>
+>            student.s_name = username
+>            student.s_password = password
+>
+>            student.save()
+>        except Exception:
+>            return redirect(reverse('app_token:register'))
+>
+>        return HttpResponse('注册成功')
+>
+>
+>def generate_token(ip, username):
+>    '''generate unique token'''
+>    c_time = ctime()
+>    r = username
+>
+>    token = hashlib.new('md5', (ip + c_time + r).encode('utf-8')).>hexdigest()
+>
+>    return token
+>
+>
+>def login(request: HttpRequest):
+>    if request.method == "GET":
+>        return render(request, 'app_token_login.html')
+>    elif request.method == 'POST':
+>        username = request.POST.get('username')
+>        password = request.POST.get('password')
+>
+>        students = Student.objects.filter(
+>            Q(s_name=username) & Q(s_password=password))
+>
+>        if students.exists():
+>            student = students.first()
+>
+>            ip = request.META.get('REMOTE_ADDR')
+>            token = generate_token(ip, username)
+>            student.s_token = token
+>            student.save()
+>
+>            # response = HttpResponse('登陆成功')
+>            # response.set_cookie('token', token)
+>            # return response
+>            data = {
+>                "status": 200,
+>                "msg": "login success",
+>                "token": token
+>            }
+>            return JsonResponse(data=data)
+>        # return redirect(reverse('app_token:login'))
+>        data = {
+>            "status": 800,
+>            "msg": "verify failed",
+>        }
+>        return JsonResponse(data=data)
+>
+>
+>def logged(request: HttpRequest):
+>    # token = request.COOKIES.get('token')
+>    token = request.GET.get('token')
+>    try:
+>        student = Student.objects.get(s_token=token)
+>    except Student.DoesNotExist:
+>        return redirect(reverse('app_token:login'))
+>    # return HttpResponse(student.s_name)
+>    data = {
+>        "status": 200,
+>        "msg": "ok",
+>        "data": {
+>            'username': student.s_name
+>        }
+>    }
+>    return JsonResponse(data=data)
+>```
+
 ### 3.4 csrf
 
-在表单提交时加验证，防止跨站攻击，确保客户端是本服务端的客户。
+在表单提交时加验证，防止跨站攻击，确保客户端是本服务端的客户，在表单内加标签 `{% csrf_token %}`。
 
 django 通过 `settings` 的 *MIDDLEWARE* 引入 `csrf.CsrfViewMiddleware`中间件来实现，其在存在 `{% csrf_token %}` 的页面中，表单内自动生成隐藏的 input 标签，标签 name 为 csrfmiddlewaretoken, value 包含一串字符串。客户端访问时服务端的响应会给客户端设置一个key为 csrftoken 的 cookie。服务端收到表单提交请求后会先验证 csrfmiddlewaretoken 和 csrftoken。
+
+>例子：
+>
+>```html
+><form action="{% url 'app_token:login' %}" method="post">
+>    {% csrf_token %}
+>    <span>用户名</span><input type="text" name="username" >placeholder="请输入用户名">
+>    <br>
+>    <span>密码</span><input type="text" name='password' >placeholder="请输入密码">
+>    <br>
+>    <button>登陆</button>
+></form>
+>```
 
 ## 4. 其他
 

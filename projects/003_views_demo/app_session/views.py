@@ -31,6 +31,8 @@ def logged(request: HttpRequest):
 
 
 def logout(request: HttpRequest):
+    print(request.session.session_key)
+
     response = redirect(reverse('app_session:login'))
 
     # wrong
@@ -38,9 +40,7 @@ def logout(request: HttpRequest):
     # del request.session['username']
 
     # correct
-    # request.session.flush()
-    # request.session.clear()
-
-    print(request.session.session_key)
+    request.session.flush()
+    # request.session.clear()  # 清除所有???
 
     return response
