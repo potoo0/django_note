@@ -1,6 +1,6 @@
 ## 1. 缓存
 
-缓存同来提升服务器响应速度。方法是将执行过的数据存储下来，再次获取数据时，直接从缓存中获取。理想方案是将数据缓存到内存中。
+缓存用来提升服务器响应速度。方法是将执行过的数据存储下来，再次获取数据时，直接从缓存中获取。理想方案是将数据缓存到内存中。
 
 缓存框架的核心目标:
 
@@ -211,7 +211,7 @@ Django 内置切点:
 - `process_exception(self, request, exception)`: 视图或者template_response抛出异常时调用，不主动返回;
 - `process_response(self, request, response)`: 响应返回到浏览器前调用，不主动返回，注意此切点实际中必须要返回，否则那就会导致请求中断。
 
-上面切点如果返回了 HttpResponse，则就会直接返回给浏览器，后续的都不会执行；如果不返回或者返回 None，执行完后会接着正常执行后续，如下图 1 所示：
+上面切点如果返回了 HttpResponse，则就会直接返回给浏览器，后续的都不会执行；如果不返回或者返回 None，执行完后会接着正常执行后续，如下图 1 所示，图中各切点除 process_response 均无返回，执行流程如绿色线，红色线表示对应的视图或者切点有异常时被 process_exception 捕获。
 
 ![django中间件切点示意图](/md_img/005_Cache-Middleware.assets/django中间件切点示意图.png)
 (*figure 1*)
