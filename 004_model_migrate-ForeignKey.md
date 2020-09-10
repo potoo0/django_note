@@ -38,9 +38,9 @@ Django 模型迁移分两步:
 
 数据表的级联通过外键实现，数据表级联按照对应关系可分为:
 
-- 一对一
-- 一对多
-- 多对多
+- 一对一：外键放那张表都可以；
+- 一对多：外键放多的那张表，外键加唯一约束，如 班级-学生 例中，如果学生数量大于班级数量，那外键应放学生表；
+- 多对多：外键放新建的中间表，外键加联合唯一约束。
 
 级联关系越复杂，则效率越低，实际中尽量避免。
 
@@ -231,12 +231,12 @@ CREATE TABLE `app_manytomany_goods_g_customer` (
 >
 >```python
 >class Customer(models.Model):
->    c_name = models.CharField(max_length=50)
+>c_name = models.CharField(max_length=50)
 >
 >
 >class Goods(models.Model):
->    g_name = models.CharField(max_length=50)
->    g_customer = models.ManyToManyField(Customer)
+>g_name = models.CharField(max_length=50)
+>g_customer = models.ManyToManyField(Customer)
 >```
 >
 >测试（推荐在 django shell 下测试）:
@@ -246,17 +246,17 @@ CREATE TABLE `app_manytomany_goods_g_customer` (
 >
 ># 添加 customer
 >for index in range(4):
->    customer = Customer.objects.create(c_name=f'Rick_{index:03}')
+>customer = Customer.objects.create(c_name=f'Rick_{index:03}')
 ># 添加 goods，并绑定关系
 >for index in range(3):
->    goods = Goods.objects.create(g_name=f'item_{index:03}')
+>goods = Goods.objects.create(g_name=f'item_{index:03}')
 >
 ># add: 绑定单个
 >customer = Customer.objects.all()
 >goods = Goods.objects.all()
 >for c in customer:
->    for g in goods:
->        c.goods_set.add(g)
+>for g in goods:
+>   c.goods_set.add(g)
 ># remove: 删除单个
 >c.goods_set.remove(g)
 ># clear: 删除全部满足的
@@ -267,6 +267,7 @@ CREATE TABLE `app_manytomany_goods_g_customer` (
 ># 主从其他操作也均相同，如查询:
 >g_last = goods.last()
 >print(g_last.g_customer.filter(pk__gt=2).values())
+>```
 
 ## 3. 模型继承
 

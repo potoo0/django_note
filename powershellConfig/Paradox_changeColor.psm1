@@ -10,7 +10,7 @@ function Write-Theme {
     )
 
     $lastColor = $sl.Colors.PromptBackgroundColor
-    $prompt += Write-Prompt -Object "¨q" -ForegroundColor $sl.Colors.PromptIndicatorForegroundColor1
+    $prompt += Write-Prompt -Object ([char]::ConvertFromUtf32(0x250C)) -ForegroundColor $sl.Colors.PromptIndicatorForegroundColor1
 
     $prompt += Write-Prompt -Object $sl.PromptSymbols.StartSymbol -ForegroundColor $sl.Colors.PromptForegroundColor -BackgroundColor $sl.Colors.SessionInfoBackgroundColor
 
@@ -66,7 +66,7 @@ function Write-Theme {
         $prompt += Write-Prompt -Object "$($with.ToUpper()) " -BackgroundColor $sl.Colors.WithBackgroundColor -ForegroundColor $sl.Colors.WithForegroundColor
     }
 
-    $prompt += Write-Prompt -Object "¨t" -ForegroundColor $sl.Colors.PromptIndicatorForegroundColor1
+    $prompt += Write-Prompt -Object ([char]::ConvertFromUtf32(0x2514)) -ForegroundColor $sl.Colors.PromptIndicatorForegroundColor1
     $prompt += Write-Prompt -Object $sl.PromptSymbols.PromptIndicator -ForegroundColor $sl.Colors.PromptIndicatorForegroundColor2
     $prompt += ' '
     $prompt
